@@ -1,0 +1,26 @@
+
+# First setup the DDR and Alt Source regs for the 7I96
+mesaflash --device 7i96 --addr 10.10.10.10 --wpo 0x1100=0x1F800
+mesaflash --device 7i96 --addr 10.10.10.10 --wpo 0x1104=0x1C3FF
+mesaflash --device 7i96 --addr 10.10.10.10 --wpo 0x1200=0x1F800
+mesaflash --device 7i96 --addr 10.10.10.10 --wpo 0x1204=0x1C3FF
+# Next set the baud rate DDS's for 9600 baud
+mesaflash --device 7i96 --addr 10.10.10.10 --wpo 0x6300=0x65
+mesaflash --device 7i96 --addr 10.10.10.10 --wpo 0x6700=0x65
+# setup the TX and RX mode registers
+mesaflash --device 7i96 --addr 10.10.10.10 --wpo 0x6400=0x00062840
+mesaflash --device 7i96 --addr 10.10.10.10 --wpo 0x6800=0x3FC61408
+# Reset the TX and RX UARTS
+mesaflash --device 7i96 --addr 10.10.10.10 --wpo 0x6400=0x80010000
+mesaflash --device 7i96 --addr 10.10.10.10 --wpo 0x6800=0x80010000
+# load 7 bytes of data into the TX UART
+mesaflash --device 7i96 --addr 10.10.10.10 --wpo 0x6100=0x54535251
+mesaflash --device 7i96 --addr 10.10.10.10 --wpo 0x6100=0xEE575655
+# Command the TX UART to send 7 bytes
+mesaflash --device 7i96 --addr 10.10.10.10 --wpo 0x6200=0x07
+sleep .1
+# display the RX mode reg, RX count, and the data
+mesaflash --device 7i96 --addr 10.10.10.10 --rpo 0x6800
+mesaflash --device 7i96 --addr 10.10.10.10 --rpo 0x6600
+mesaflash --device 7i96 --addr 10.10.10.10 --rpo 0x6500
+mesaflash --device 7i96 --addr 10.10.10.10 --rpo 0x6500

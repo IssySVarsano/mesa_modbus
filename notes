@@ -1,0 +1,9 @@
+Using USB/serial
+
+stty -F /dev/ttyUSB0 speed 9600 cs8 -cstopb -parenb echo
+echo -en '\x01\x05\x00\x00\x5A\x00\xF7\x6A' > /dev/ttyUSB0
+
+USB-serial Green to 16 RX+
+           White to 17 RX-
+
+3FC0 = no data 3FE1 = 1 frame 3FE2 = 2 frames

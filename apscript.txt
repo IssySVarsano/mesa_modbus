@@ -1,0 +1,25 @@
+
+# First setup the DDR and Alt Source regs for the 7I96
+mesaflash --device 7i96 --addr 10.10.10.10 --wpo 0x1100=0x1F800
+mesaflash --device 7i96 --addr 10.10.10.10 --wpo 0x1104=0x1C3FF
+mesaflash --device 7i96 --addr 10.10.10.10 --wpo 0x1200=0x1F800
+mesaflash --device 7i96 --addr 10.10.10.10 --wpo 0x1204=0x1C3FF
+# Next set the baud rate DDS's for 9600 baud
+mesaflash --device 7i96 --addr 10.10.10.10 --wpo 0x6300=0x65
+mesaflash --device 7i96 --addr 10.10.10.10 --wpo 0x6700=0x65
+# setup the TX and RX mode registers
+mesaflash --device 7i96 --addr 10.10.10.10 --wpo 0x6400=0x00002820
+mesaflash --device 7i96 --addr 10.10.10.10 --wpo 0x6800=0x3FC01408
+# Reset the TX and RX UARTS
+mesaflash --device 7i96 --addr 10.10.10.10 --wpo 0x6400=0x80010000
+mesaflash --device 7i96 --addr 10.10.10.10 --wpo 0x6800=0x80010000
+
+for i in {1..10}
+do
+sleep 1
+    # display the RX mode reg, RX count, and the data
+    mesaflash --device 7i96 --addr 10.10.10.10 --rpo 0x6800
+done
+mesaflash --device 7i96 --addr 10.10.10.10 --rpo 0x6600
+mesaflash --device 7i96 --addr 10.10.10.10 --rpo 0x6500
+mesaflash --device 7i96 --addr 10.10.10.10 --rpo 0x6500
