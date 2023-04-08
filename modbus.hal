@@ -16,8 +16,8 @@ addf mesa_modbus.00 thread1
 
 #loadusr halscope
 
-loadusr sim_pin mesa_modbus.00.relay-A mesa_modbus.00.relay-B mesa_modbus.00.relay-C mesa_modbus.00.relay-D
-#loadusr sim_pin hm2_5i25.0.watchdog.has_bit
+loadusr halshow
+
+loadusr sim_pin hm2_7i96.0.watchdog.has_bit
 
 
-start
