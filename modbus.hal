@@ -2,7 +2,7 @@ loadrt hostmot2
 loadrt hm2_eth board_ip=10.10.10.10
 #loadrt hm2_pci
 loadrt mesa_modbus ports=hm2_7i96.0.pktuart.0
-#loadrt mesa_modbus ports=hm2_5i25.0.pktuart.0
+#loadrt mesa_modbus ports=hm2_5i25.0.pktuart.7
 loadrt threads period1=1000000
 
 addf hm2_7i96.0.read thread1
@@ -11,13 +11,16 @@ addf hm2_7i96.0.write thread1
 #addf hm2_5i25.0.write thread1
 addf mesa_modbus.00 thread1
 
+setp mesa_modbus.00.address 1
+setp mesa_modbus.00.volts-scale .0012
+setp mesa_modbus.00.volts-offset -6
 
-#start
+start
 
 #loadusr halscope
 
 loadusr halshow
 
-loadusr sim_pin hm2_7i96.0.watchdog.has_bit
+#loadusr sim_pin hm2_7i96.0.watchdog.has_bit
 
 

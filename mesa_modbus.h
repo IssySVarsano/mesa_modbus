@@ -20,10 +20,5 @@ COUNT = number of coils/registers to read
 
 static const hm2_modbus_chan_descriptor_t channels[] = {
 /*  {TYPE,    FUNC, ADDR,   COUNT, pin_name} */
-    {HAL_BIT, 1,  0x0000, 8,     "state"},
-    {HAL_BIT, 2,  0x0000, 8,     "input"},
-    {HAL_BIT, 5,  0x0000, 1,     "relay-0"},
-    {HAL_BIT, 5,  0x0001, 1,     "relay-1"},
-    {HAL_BIT, 5,  0x0002, 1,     "relay-2"},
-    {HAL_BIT, 5,  0x0003, 1,     "relay-3"},
+    {HAL_FLOAT, 3,  0x0000, 1,     "volts"},
 };

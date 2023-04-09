@@ -415,7 +415,7 @@ void do_timeout(char *port, int *state){
         hm2_pktuart_setup(port, -1, -1, -1, 1, 1);
         *state = START;
     }
-    rtapi_print_msg(RTAPI_MSG_INFO, "%i timeout %i\r", iter, *state);
+    rtapi_print_msg(RTAPI_MSG_INFO, "%i timeout %i\n", iter, *state);
 }
 
 void process(void *arg, long period) {
@@ -441,7 +441,7 @@ void process(void *arg, long period) {
     switch (state) {
         case START:
 
-            rtapi_print_msg(RTAPI_MSG_INFO, "START txstatus = %08X rxstatus = %08X\r", txstatus, rxstatus);
+            rtapi_print_msg(RTAPI_MSG_INFO, "START txstatus = %08X rxstatus = %08X\n", txstatus, rxstatus);
 
             // Check for received data
             if (rxstatus & 0x200000) {
@@ -466,8 +466,11 @@ void process(void *arg, long period) {
             break;
         case WAIT_FOR_SEND_BEGIN:
             // single cycle delay to allow for queued data
+            rtapi_print_msg(RTAPI_MSG_INFO, "WAIT_FOR_SEND_BEGIN\n", txstatus, rxstatus);
+            do_timeout(inst->port, &state); // just to reset the counter
             state = WAIT_FOR_SEND_COMPLETE;
             break;
+
         case WAIT_FOR_SEND_COMPLETE:
             rtapi_print_msg(RTAPI_MSG_INFO, "%i WAIT_FOR_SEND_COMPLETE RX %X TX %X\n", iter, rxstatus, txstatus);
             do_timeout(inst->port, &state);
@@ -658,15 +661,15 @@ int parse_data_frame(hm2_modbus_channel_t *ch, hm2_modbus_hal_t hal, rtapi_u32 d
         if ((b += 8) == 32) { b = 0; w++;}
     }
     rtapi_print_msg(RTAPI_MSG_INFO, "\n");
-    if (bytes[1] != ch->func) {
+    if ((bytes[1] & 0x7F ) != ch->func) {
         rtapi_print_msg(RTAPI_MSG_ERR, "call/response function number missmatch\n");
         return -1;
     }
 
     checksum = RTU_CRC(bytes, count - 2);
-    if (bytes[count - 2] != checksum & 0xFF || bytes[count - 1] != checksum >> 8){
+    if (bytes[count - 2] != (checksum & 0xFF) || bytes[count - 1] != (checksum >> 8)){
         rtapi_print_msg(RTAPI_MSG_ERR, "Modbus checksum error\n");
-        rtapi_print_msg(RTAPI_MSG_ERR, "%02X %02X %04X\n", bytes[count - 2], bytes[count - 1], checksum);
+        rtapi_print_msg(RTAPI_MSG_ERR, "%2X%02X != %04X\n", bytes[count - 1], bytes[count - 2], checksum);
         return -1;
     }
 
@@ -685,10 +688,11 @@ int parse_data_frame(hm2_modbus_channel_t *ch, hm2_modbus_hal_t hal, rtapi_u32 d
         case 3: // read holding registers
         case 4: // read registers
             w = 3;
-            for (i = 0; i < bytes[2]; i++){
+            for (i = 0; i < bytes[2] / 2; i++){
                 switch (ch->type){
                 case HAL_U32:
-                    hal.pins[p++]->u = 256 * bytes[w++] + bytes[w++];
+                    hal.pins[p]->u = 256 * bytes[w++] + bytes[w++];
+                    p++;
                     break;
                 case HAL_S32: // wrap the result into the (float) offset too
                     tmp = hal.pins[p]->u;
@@ -700,8 +704,8 @@ int parse_data_frame(hm2_modbus_channel_t *ch, hm2_modbus_hal_t hal, rtapi_u32 d
                     p++;
                     break;
                 case HAL_FLOAT:
-                    hal.pins[p++]->f = *(hal.scale[p]) * (256 * bytes[w++] + bytes[w++])
-                                       + *(hal.offset[p]);
+                    hal.pins[p]->f = *(hal.scale[p]) * (256 * bytes[w++] + bytes[w++])
+                                     + *(hal.offset[p]);
                     p++;
                     break;
                 }
@@ -725,6 +729,7 @@ int parse_data_frame(hm2_modbus_channel_t *ch, hm2_modbus_hal_t hal, rtapi_u32 d
         case 144: // 16 + error bit
             rtapi_print_msg(RTAPI_MSG_ERR, "Modbus error response function %i error %s\n",
                             bytes[1] & 0x8F, error_codes[bytes[2]]);
+            break;
         default:
             rtapi_print_msg(RTAPI_MSG_ERR, "Unknown or unsupported Modbus function code\n");
     }

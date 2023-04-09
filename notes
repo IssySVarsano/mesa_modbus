@@ -14,3 +14,7 @@ But, oddly, it has to be 08 rather than the actual number of channels. 04 gets n
 2) You can read the inputs with 01 02 00 00 00 08 79 CC
 But, oddly, they seem to be reversed relative to the silkscreen. bit 0 is input 3, bit 1 is input 2, etc. Again, it needs to be a read of 8, not the actual number of channels.
 3) Modbus command 15 does not seem to be supported.
+
+Relayboard - A+ -> Rx-/Tx- B- -> Rx+/Tx+
+
+ADC board ?
